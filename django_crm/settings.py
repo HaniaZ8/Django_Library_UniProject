@@ -64,9 +64,9 @@ WSGI_APPLICATION = 'django_crm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'agrocrm',
+        'NAME': '', #your database name
         'USER': 'postgres',
-        'PASSWORD': 'inka123',
+        'PASSWORD': '', #your password
         'HOST': 'localhost',
         'PORT': '5432',
     }
