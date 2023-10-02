@@ -1,1 +1,37 @@
-<h1>Hello World!</h1>
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+
+{% if user.is_authenticated %}
+
+    <br/>
+    <h1> hello world </h1>
+
+{% else %}
+
+    <br/>
+    <h1>Login</h1>
+    <br/>
+
+    <form method="POST" action="{% url 'home' %}">
+	    <!-- Cross Site Request Forgery token for the project not to be hacked-->
+	    {% csrf_token %}
+        <div class="mb-3">
+            <!-- Will have to be changed into e-mail format for my project, but for now it will be text so I can log with admin-->
+            <input type="text" class="form-control" name="email_adress" placeholder="Adres e-mail" required>
+        </div>
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Haslo" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+
+    </form>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

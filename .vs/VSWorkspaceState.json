@@ -1,9 +1,10 @@
 {
   "ExpandedNodes": [
     "",
+    "\\django_crm",
     "\\website",
     "\\website\\templates"
   ],
-  "SelectedNode": "\\website\\templates\\home.html",
+  "SelectedNode": "\\django_crm\\urls.py",
   "PreviewInSolutionExplorer": false
 }
