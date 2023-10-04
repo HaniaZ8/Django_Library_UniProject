@@ -21,7 +21,7 @@
 	    {% csrf_token %}
         <div class="mb-3">
             <!-- Will have to be changed into e-mail format for my project, but for now it will be text so I can log with admin-->
-            <input type="text" class="form-control" name="email_adress" placeholder="Adres e-mail" required>
+            <input type="text" class="form-control" name="username" placeholder="Adres e-mail" required>
         </div>
         <div class="mb-3">
             <input type="password" class="form-control" name="password" placeholder="Haslo" required>
@@ -30,8 +30,7 @@
 
     </form>
 
-{% endif %}
-
 </div>
+{% endif %}
 
 {% endblock %}
