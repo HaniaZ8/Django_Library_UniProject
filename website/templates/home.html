@@ -3,26 +3,44 @@
 
 {% block content %}
 
-<div class="col-md-6 offset-md-3">
-
 {% if user.is_authenticated %}
-
     <br/>
-    <h1> Records...</h1>
-    {% if records %}
-        {% for record in records %}
-            {{ record.first_name }}
-            {{ record.last_name }}
-            {{ record.email }}
-            {{ record.phone }}
-            {{ record.address }}
-            {{ record.city }}
-            {{ record.state }}
-            {{ record.zipcode }}
-            {{ record.created_at }}<br/>
+    <table class="table table-striped table-hover table-bordered ">
+    <thead class="table-dark">
+        <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Address</th>
+        <th scope="col">City</th>
+        <th scope="col">State</th>
+        <th scope="col">Zipcode</th>
+        <th scope="col">Created At</th>
+        <th scope="col">ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if records %}
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.first_name }}
+                    {{ record.last_name }}</td>
+                    <td>{{ record.email }}</td>
+                    <td>{{ record.phone }}</td>
+                    <td>{{ record.address }}</td>
+                    <td>{{ record.city }}</td>
+                    <td>{{ record.state }}</td>
+                    <td>{{ record.zipcode }}</td>
+                    <td>{{ record.created_at }}</td>
+                    <td>{{ record.id }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+    </table>
 
-        {% endfor %}
-    {% endif %}
+
+        
 {% else %}
 
     <br/>
@@ -43,7 +61,6 @@
 
     </form>
 
-</div>
 {% endif %}
 
 {% endblock %}
