@@ -4,19 +4,19 @@
 </br>
 <div class="card">
   <div class="card-header">
-      <h5 class = "card-title">
-        {{ customer_record.first_name }} 
-        {{ customer_record.last_name }}
+      <h5 class="card-title">
+        {{ customer_record.title }}
       </h5>
   </div>
   <div class="card-body">
+    {% if not customer_record.is_approved %}
+    <div class="alert alert-warning" role="alert">
+      This record is pending approval. It will be visible once approved by a superuser.
+    </div>
+    {% endif %}
     <p class="card-text">
-        <strong>Email:  </strong>{{ customer_record.email }} <br/>
-        <strong>Phone:  </strong>{{ customer_record.phone }} <br/>
-        <strong>Address: </strong>{{ customer_record.address }} <br/>
-        <strong>City: </strong>{{ customer_record.city }} <br/>
-        <strong>State: </strong>{{ customer_record.state }} <br/>
-        <strong>Zipcode: </strong>{{ customer_record.zipcode }} <br/>
+        <strong>Title:  </strong>{{ customer_record.title }} <br/>
+        <strong>Author:  </strong>{{ customer_record.first_name }} {{ customer_record.last_name }} <br/>
         <strong>Created at: </strong>{{ customer_record.created_at }} <br/>
         <strong>ID: </strong>{{ customer_record.id }} <br/>
     </p>
