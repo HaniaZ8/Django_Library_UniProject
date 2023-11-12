@@ -4,7 +4,7 @@
   <h1>Unapproved Records</h1>
   <ul>
     {% for record in unapproved_records %}
-      <li><a href="{% url 'customer_record' record.id %}">{{ record.first_name }} {{ record.last_name }}</a> - <a href="{% url 'approve_record' record.id %}">Approve</a></li>
+        <li><a href="{% url 'customer_record' record.id %}">{{ record.first_name }} {{ record.last_name }}</a> - <a href="{% url 'approve_record' record.id %}">Approve</a></li>
     {% endfor %}
-  </ul>
+</ul>
 {% endblock %}

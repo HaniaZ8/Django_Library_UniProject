@@ -16,7 +16,8 @@
     {% endif %}
     <p class="card-text">
         <strong>Title:  </strong>{{ customer_record.title }} <br/>
-        <strong>Author:  </strong>{{ customer_record.first_name }} {{ customer_record.last_name }} <br/>
+        <strong>Author:  </strong>{{ customer_record.author }} <br/>
+        <strong>Category:  </strong>{{ customer_record.category.name }} <br/>
         <strong>Created at: </strong>{{ customer_record.created_at }} <br/>
         <strong>ID: </strong>{{ customer_record.id }} <br/>
     </p>
@@ -26,8 +27,12 @@
 </br>
 <a href="{% url 'home' %}" class="btn btn-primary"> Back </a>
 
-<a href="{% url 'delete_record' customer_record.id %}" class="btn btn-danger"> Delete </a>
+{% if request.user.is_authenticated and request.user.is_staff %}
+    <!-- Show delete and update buttons only to staff users -->
+    <a href="{% url 'delete_record' customer_record.id %}" class="btn btn-danger"> Delete </a>
+    <a href="{% url 'update_record' customer_record.id %}" class="btn btn-secondary"> Update </a>
+    <a href="{% url 'borrow_book' customer_record.id %}" class="btn" style="background-color: #32a852; color: #ffffff;">Borrow</a>
 
-<a href="{% url 'update_record' customer_record.id %}" class="btn btn-secondary"> Update </a>
+{% endif %}
 
 {% endblock %}

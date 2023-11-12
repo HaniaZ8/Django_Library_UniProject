@@ -1,11 +1,45 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+
+class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - Approved: {self.is_approved}"
+    
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    surname = models.CharField(max_length=100, default='None')
+    
+    def __str__(self):
+        return f"{self.name} {self.surname}"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.name
+    
 class Record(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, default="Default Title")
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
     
     def __str__(self):
-        return(f"{self.title}")
+        return self.title
+
+
+class Borrow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    record = models.ForeignKey('Record', on_delete=models.CASCADE)
+    borrow_date = models.DateTimeField(null=True, blank=True)
+    return_date = models.DateTimeField(null=True, blank=True)
+    is_returned = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.record.title}"

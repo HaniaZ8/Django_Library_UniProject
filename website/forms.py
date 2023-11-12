@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Record
+from .models import Record, Customer, Author, Category, Borrow
 
 class SignUpForm(UserCreationForm):
         email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -29,13 +29,19 @@ class SignUpForm(UserCreationForm):
             self.fields['password2'].label = ''
             self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
             
-#we use to update records
+# we use to update records
 class AddRecordForm(forms.ModelForm):
-    title = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Title", "class":"form-control"}), label="")
-    first_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"First Name", "class":"form-control"}), label="")
-    last_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Last Name", "class":"form-control"}), label="")
-      
+    title = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder": "Title", "class": "form-control"}), label="")
+    is_approved = forms.BooleanField(required=False, widget=forms.widgets.CheckboxInput(), label="Approved")
+    author = forms.ModelChoiceField(queryset=Author.objects.all(), required=False, label="Author")
+    category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False, label="Category")
+
+
     class Meta:
-        model= Record
-        exclude = ("user", "is_approved")
+        model = Record
+        exclude = ("user",)
     
+class BorrowForm(forms.ModelForm):
+    class Meta:
+        model = Borrow
+        fields = ['record', 'return_date']

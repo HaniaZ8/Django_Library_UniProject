@@ -1,0 +1,29 @@
+<!-- borrow_book.html -->
+{% extends 'base.html' %}
+{% block content %}
+</br>
+  <h1>Borrow Book</h1>
+  </br>
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">
+        {{ record.title }}
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="card-text">
+        <strong>Title:  </strong>{{ record.title }} <br/>
+        <strong>Author:  </strong>{{ record.author }} <br/>
+        <strong>Category:  </strong>{{ record.category.name }} <br/>
+      </p>
+      <p>You are about to borrow this book. Please return it after 3 weeks.</br></br>Exact information can be seen in "Your Books".</p>
+    </div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    </br>
+    <a href="{% url 'home' %}" class="btn btn-primary"> Back </a>
+    <button type="submit" class="btn" style="background-color: #32a852; color: #ffffff;">Borrow</button>
+  </form>
+  
+{% endblock %}
