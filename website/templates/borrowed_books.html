@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Title -->
+</br>
+    <h1>Borrowed Books</h1>
+</br>
+<!-- Contents -->
+    <table class="table table-striped table-hover table-bordered ">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Borrow Date</th>
+                <th scope="col">Return Date</th>
+                {% if user.is_superuser or user.is_staff %}
+                    <th scope="col">Created At</th>
+                    <th scope="col">ID</th>
+                {% endif %}
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if borrowed_books %}
+                {% for book in borrowed_books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.borrow_date }}</td>
+                        <td>{{ book.return_date }}</td>
+                        {% if user.is_superuser or user.is_staff %}
+                            <td>{{ book.created_at }}</td>
+                            <td><a href="{% url 'record' book.id %}">{{ book.id }}</a></td>
+                        {% endif %}
+                        <td>
+                            <a class="btn btn-secondary" href="{% url 'record' book.id %}">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="{% if user.is_superuser or user.is_staff %}7{% else %}6{% endif %}">No borrowed books</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+{% endblock %}

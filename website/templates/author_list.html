@@ -2,11 +2,55 @@
 
 {% block content %}
 
-<h1>Author List</h1>
-<ul>
-    {% for author in authors %}
-        <li>{{ author.name }}</li>
-    {% endfor %}
-</ul>
+{% if user.is_superuser or user.is_staff %}
+
+<!-- Title -->
+<div class="row col-md-4 offset-md-4 justify-content-center custom-margin-top2">
+
+<h1>Authors List</h1>
+
+</div>
+
+<!-- Specified styles for the html -->
+<style>
+    .custom-margin-top2 {
+        margin-top: 3%;
+    }
+    .custom-margin-top {
+        margin-top: 5%;
+    }
+    .custom-button {
+        margin-bottom: 30px;
+    }
+</style>
+
+<!-- Contents -->
+<div class="container-fluid row col-md-3 offset-md-4 justify-content-center custom-margin-top">
+<table class="table table-striped table-hover table-bordered ">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Author's name</th>
+                <th scope="col">Born</th>
+                <th scope="col">Died</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if authors %}
+                {% for author in authors %}
+                    <tr>
+                        <td>{{ author.name }} {{ author.surname }}</td>
+                        <td>{{ author.birth_year }}</td>
+                        <td>{{ author.death_year }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="{% if user.is_superuser or user.is_staff %}7{% else %}6{% endif %}">No authors</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 
 {% endblock %}

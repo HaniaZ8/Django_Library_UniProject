@@ -2,11 +2,53 @@
 
 {% block content %}
 
-<h1>Category List</h1>
-<ul>
-    {% for category in categories %}
-        <li>{{ category.name }}</li>
-    {% endfor %}
-</ul>
+{% if user.is_superuser or user.is_staff %}
 
+<!-- Title -->
+<div class="row col-md-4 offset-md-4 justify-content-center custom-margin-top2">
+
+<h1>Category List</h1>
+
+</div>
+
+<!-- Specified styles for the html -->
+<style>
+    .custom-margin-top2 {
+        margin-top: 3%;
+    }
+    .custom-margin-top {
+        margin-top: 5%;
+    }
+    .custom-button {
+        margin-bottom: 30px;
+    }
+</style>
+
+<!-- Contents -->
+<div class="container-fluid row col-md-5 offset-md-3 justify-content-center custom-margin-top">
+<table class="table table-striped table-hover table-bordered ">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if categories %}
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.description }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="{% if user.is_superuser or user.is_staff %}7{% else %}6{% endif %}">No borrowed books</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+                    
 {% endblock %}

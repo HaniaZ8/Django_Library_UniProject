@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.is_superuser or user.is_staff %}
+<!-- Title -->
+<div class="row col-md-5 offset-md-3 justify-content-center custom-margin-top2">
+<h1>Management Options</h1>
+</div>
+
+<!-- Specified styles for the html -->
+<style>
+    .custom-margin-top2 {
+        margin-top: 8%;
+    }
+    .custom-margin-top {
+        margin-top: 5%;
+    }
+    .custom-button {
+        margin-bottom: 30px;
+    }
+</style>
+
+<!-- Contents' style -->
+<div class="container-fluid row col-md-4 offset-md-3 justify-content-center custom-margin-top">
+    <br/>
+        <a href="{% url 'list_unapproved_records' %}" class="btn custom-button" style="background-color: #E83F6F; color: #ffffff;"> Unapproved Books' List </a>
+        <a href="{% url 'category_list' %}" class="btn custom-button" style="background-color: #f0933c; color: #ffffff;"> Categories List </a>
+        <a href="{% url 'author_list' %}" class="btn custom-button" style="background-color: #3cc3f0; color: #ffffff;"> Authors' List </a>
+</div>
+
+{% endif %}
+
+
+
+
+{% endblock %}

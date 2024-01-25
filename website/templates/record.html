@@ -1,26 +1,39 @@
 {% extends 'base.html' %}
-{% block content %}
 
+{% block content %}
+<!-- Title -->
 </br>
 <div class="card">
   <div class="card-header">
       <h5 class="card-title">
-        {{ customer_record.title }}
+        {{ book_record.title }}
       </h5>
   </div>
+  <!-- Contents -->
   <div class="card-body">
-    {% if not customer_record.is_approved %}
+    {% if not book_record.is_approved %}
     <div class="alert alert-warning" role="alert">
-      This record is pending approval. It will be visible once approved by a superuser.
+      This book is pending approval. It will be visible once approved by a superuser.
     </div>
+    {% else %}
+      {% if not book_record.is_available %}
+        <div class="alert alert-warning" role="alert">
+          This book is not available at the moment.
+        </div>
+      {% endif %}
     {% endif %}
+    
     <p class="card-text">
-        <strong>Title:  </strong>{{ customer_record.title }} <br/>
-        <strong>Author:  </strong>{{ customer_record.author }} <br/>
-        <strong>Category:  </strong>{{ customer_record.category.name }} <br/>
-        <strong>Created at: </strong>{{ customer_record.created_at }} <br/>
-        <strong>ID: </strong>{{ customer_record.id }} <br/>
+        <strong>Title:  </strong>{{ book_record.title }} <br/>
+        <strong>Author:  </strong>{{ book_record.author }} <br/>
+        <strong>Category:  </strong>{{ book_record.category.name }} <br/>
+        <strong>Release Year:  </strong>{{ book_record.release_year }} <br/>
+        {% if user.is_superuser or user.is_staff %}
+            <strong>Created at: </strong>{{ book_record.created_at }} <br/>
+            <strong>ID: </strong>{{ book_record.id }} <br/>
+        {% endif %}
     </p>
+
   </div>
 </div>
 
@@ -29,10 +42,12 @@
 
 {% if request.user.is_authenticated and request.user.is_staff %}
     <!-- Show delete and update buttons only to staff users -->
-    <a href="{% url 'delete_record' customer_record.id %}" class="btn btn-danger"> Delete </a>
-    <a href="{% url 'update_record' customer_record.id %}" class="btn btn-secondary"> Update </a>
-    <a href="{% url 'borrow_book' customer_record.id %}" class="btn" style="background-color: #32a852; color: #ffffff;">Borrow</a>
+    <a href="{% url 'delete_record' book_record.id %}" class="btn btn-danger"> Delete </a>
+    <a href="{% url 'update_record' book_record.id %}" class="btn btn-secondary"> Update </a>
+{% endif %}
 
+{% if book_record.is_available %}
+    <a href="{% url 'borrow_book' book_record.id %}" class="btn" style="background-color: #32a852; color: #ffffff;">Borrow</a>
 {% endif %}
 
 {% endblock %}

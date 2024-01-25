@@ -1,10 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Unapproved Records</h1>
+<!-- Title -->
+</br>
+<h1>Unapproved Books</h1>
+</br>
+<!-- Contents -->
   <ul>
-    {% for record in unapproved_records %}
-        <li><a href="{% url 'customer_record' record.id %}">{{ record.first_name }} {{ record.last_name }}</a> - <a href="{% url 'approve_record' record.id %}">Approve</a></li>
-    {% endfor %}
-</ul>
+    <table class="table table-striped table-hover table-bordered" id="recordsTable">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Author</th>
+          <th scope="col">Created At</th>
+          <th scope="col">ID</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if unapproved_records %}
+          {% for record in unapproved_records %}
+            <tr>
+              <td>{{ record.title }}</td>
+              <td>{{ record.author }}</td>
+              <td>{{ record.created_at }}</td>
+              <td><a href="{% url 'record' record.id %}">{{ record.id }}</a></td>
+              <td>
+                <a class="btn btn-secondary" href="{% url 'record' record.id %}">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </ul>
+
 {% endblock %}

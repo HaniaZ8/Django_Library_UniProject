@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.contrib.auth import authenticate, login, logout
@@ -31,20 +32,21 @@ def home(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request,"Logowanie udalo sie!")
+            messages.success(request,"Login successful!")
             return redirect('home')
         else:
-            messages.success(request, "Logowanie nie udalo sie. Sprobuj ponownie..")
+            messages.success(request, "Login failed. Please try again...")
             return redirect('home')
     else:
         return render(request, 'home.html', {'records': records})
-
-
+        
 def logout_user(request):
-    logout(request)
-    messages.success(request, "Zostales wylogowany...")
-    return redirect('home')
-
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "You've been logged out...")
+        return redirect('home')
+    else:
+        return redirect('home')
 
 def register_user(request):
     if request.method == 'POST':
@@ -64,35 +66,29 @@ def register_user(request):
         form = SignUpForm()
     return render(request, 'register.html', {'form': form})
 
-
-@login_required
-def customer_record(request, pk):
+def book_record(request, pk):
     if request.user.is_authenticated:
         #Look up Records
-        customer_record = Record.objects.get(id=pk)
-        if not request.user.is_staff and not customer_record.is_approved:
-            messages.error(request, "This record is not approved yet.")
+        book_record = Record.objects.get(id=pk)
+        if not request.user.is_staff and not book_record.is_approved:
+            messages.error(request, "This book is not approved yet.")
             return redirect('home')
         else:
-            return render(request, 'record.html', {'customer_record': customer_record})
+            return render(request, 'record.html', {'book_record': book_record})
     else:
-        messages.success(request, "You Must be Logged in to view Page")
+        messages.success(request, "You must be logged in to view page")
         return redirect('home')
 
-
-@login_required    
 def delete_record(request,pk):
-    if request.user.is_authenticated:    
+    if request.user.is_staff:    
         delete_it = Record.objects.get(id = pk)
         delete_it.delete()
         messages.success(request, "Record deleted successfully")
         return redirect('home')
     else:
-         messages.success(request, "You Must be Logged in to do That")
+         messages.success(request, "You don't have permission to perform this action.")
          return redirect('home')
 
-
-@login_required
 def update_record(request, pk):
     if request.user.is_authenticated:    
         current_record = Record.objects.get(id=pk)
@@ -110,10 +106,12 @@ def update_record(request, pk):
                     record.is_approved = True
                 else:
                     record.is_approved = False
+                    # If the book is not approved, set availability to False (unavailable)
+                    record.is_available = False
 
                 record.save()
 
-                messages.success(request, "Record has been Updated!")
+                messages.success(request, "Record has been updated!")
                 return redirect('home')
 
             return render(request, 'update_record.html', {'form': form})
@@ -124,7 +122,6 @@ def update_record(request, pk):
         messages.error(request, "You must be logged in to do that.")
         return redirect('home')
  
-
 def approve_record(request, pk):
     if request.user.is_superuser:
         record = Record.objects.get(id=pk)
@@ -133,66 +130,101 @@ def approve_record(request, pk):
         messages.success(request, "Record approved successfully.")
         return redirect('list_unapproved_records')
     else:
-        messages.error(request, "You must be a superuser to approve records.")
+        messages.error(request, "You don't have permission to perform this action.")
         return redirect('home')
- 
+
 def author_list(request):
-    authors = Author.objects.all()
-    return render(request, 'author_list.html', {'authors': authors})
+    if request.user.is_superuser:
+        authors = Author.objects.all()
+        return render(request, 'author_list.html', {'authors': authors})
+    else:
+        messages.error(request, "You don't have permission to perform this action.")
+        return redirect('home')
 
 def category_list(request):
-    categories = Category.objects.all()
-    return render(request, 'category_list.html', {'categories': categories})
+    if request.user.is_superuser:
+        categories = Category.objects.all()
+        return render(request, 'category_list.html', {'categories': categories})
+    else:
+        messages.error(request, "You don't have permission to perform this action.")
+        return redirect('home')
 
-@login_required
+def send_borrowed_book_email(user_email, book_title, return_date):
+    subject = 'Book Borrowed Confirmation'
+    message = f'Thank you for borrowing the book "{book_title}". Remeber to give it back by {return_date}. Enjoy your reading!'
+    from_email = 'librarydjango00@gmail.com'
+    recipient_list = [user_email]
+
+    send_mail(subject, message, from_email, recipient_list)
+
 def borrow_book(request, pk):
-    record = get_object_or_404(Record, pk=pk)
+    if request.user.is_authenticated:  
+        record = get_object_or_404(Record, pk=pk)
 
-    # Check if the book is approved
-    if not record.is_approved:
-        messages.error(request, "This book is not approved and cannot be borrowed.")
+        # Check if the book is approved
+        if not record.is_approved:
+            messages.error(request, "This book is not approved and cannot be borrowed.")
+            return redirect('home')
+
+        # Check if the book is already borrowed and not returned
+        if not record.is_available:
+            messages.error(request, "This book is not available for borrowing.")
+            return redirect('home')
+
+        if request.method == 'POST':
+            # Set the return_date to 23:59:59
+            return_date = timezone.now() + timedelta(weeks=3)
+            return_date = return_date.replace(hour=23, minute=59, second=59)
+
+            # Create a Borrow object directly
+            borrow_instance = Borrow.objects.create(
+                user=request.user,
+                record=record,
+                borrow_date=timezone.now(),
+                return_date=return_date
+            )
+
+            # Mark the book as unavailable
+            record.is_available = False
+            record.save()
+            # Send email to the user
+            send_borrowed_book_email(request.user.email, record.title, borrow_instance.return_date)
+
+            messages.success(request, "Book borrowed successfully.")
+            return redirect('home')
+
+        return render(request, 'borrow_book.html', {'record': record})
+    else:
+        messages.error(request, "You don't have permission to perform this action.")
+        return redirect('home')
+    
+def borrowed_books(request):
+    if request.user.is_authenticated:     
+        # Retrieve the list of borrowed books for the current user
+        borrowed_books = Borrow.objects.filter(user=request.user, is_returned=False).select_related('record')
+
+        # Create a list of dictionaries for each borrowed book
+        borrowed_books_data = [
+            {
+                'title': borrow.record.title,
+                'author': borrow.record.author,
+                'created_at': borrow.record.created_at,
+                'id': borrow.record.id,
+                'borrow_date': borrow.borrow_date,
+                'return_date': borrow.return_date
+            }
+        for borrow in borrowed_books
+        ]
+
+        # Render the template with the borrowed books data
+        return render(request, 'borrowed_books.html', {'borrowed_books': borrowed_books_data})
+    else:
+        messages.error(request, "You don't have permission to perform this action.")
         return redirect('home')
 
-    # Check if the book is already borrowed and not returned
-    if not record.is_available:
-        messages.error(request, "This book is not available for borrowing.")
+def management(request):
+    if request.user.is_superuser:
+        return render(request, 'management.html')
+    else:
+        messages.error(request, "You don't have permission to perform this action.")
         return redirect('home')
-
-    if request.method == 'POST':
-        # Set the return_date to 23:59:59
-        return_date = timezone.now() + timedelta(weeks=3)
-        return_date = return_date.replace(hour=23, minute=59, second=59)
-
-        # Create a Borrow object directly
-        borrow_instance = Borrow.objects.create(
-            user=request.user,
-            record=record,
-            borrow_date=timezone.now(),
-            return_date=return_date
-        )
-
-        # Mark the book as unavailable
-        record.is_available = False
-        record.save()
-
-        messages.success(request, "Book borrowed successfully.")
-        return redirect('home')
-
-    return render(request, 'borrow_book.html', {'record': record})
-
-@require_GET
-def get_sorted_records(request):
-    # Get the sorting parameter from the request
-    sort_by = request.GET.get('sort_by', 'title')  # Default to sorting by title
-
-    # Fetch records from the database and sort them
-    records = Record.objects.all().order_by(sort_by)
-
-    # Create a list of dictionaries for each record
-    records_data = [
-        {'title': record.title, 'author': record.author, 'created_at': record.created_at, 'id': record.id}
-        for record in records
-    ]
-
-    # Return the sorted records in JSON format
-    return JsonResponse({'records': records_data})
